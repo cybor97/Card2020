@@ -6,7 +6,7 @@
 2. Phase 2
 2.1. Christmas music(trap or synth) plays, new scene appears, fallen snow grown with Perlin noice with 3 dimensions(x,y,time), pregenerated snowflakes with fractal || simple graph, polygon-shaped stars, christmas tree
 2.2. Santa on carete appears, leaving cloud of snow(particle system) that fades in far
-2.3. Santa stops next to christmas tree, hits the floor with ther staff, making sparks(glowing) and snow(both particle systems) fly in sides, fading in far
+2.3. Santa stops next to christmas tree, hits the floor with their staff, making sparks(glowing) and snow(both particle systems) fly in different directions, fading in far
 
 3. Phase 3
 2.1. Mini-game. Appears and fades text "catch your present".
