@@ -1,0 +1,22 @@
+{
+  "name": "card2020",
+  "version": "0.0.1",
+  "description": "New year card 2020",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cybor97/Card2020.git"
+  },
+  "keywords": [
+    "card2020"
+  ],
+  "author": "cybor97",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cybor97/Card2020/issues"
+  },
+  "homepage": "https://github.com/cybor97/Card2020#readme"
+}

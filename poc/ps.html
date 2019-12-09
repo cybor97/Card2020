@@ -1,0 +1,97 @@
+<html>
+
+<body style="margin: 0px;" background="#000">
+  <canvas id="canvas" style="height: 100vh; width:100vw;" />
+  <script>
+    const PARTICLES_COUNT = 30000;
+    const CENTER_SIZE = 10;
+    let renderText = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('canvas');
+      canvas.setAttribute('width', document.body.clientWidth);
+      canvas.setAttribute('height', document.body.clientHeight);
+      let context = canvas.getContext('2d');
+
+
+      let ps = [];
+      let centerLeft = canvas.clientWidth / 2 - CENTER_SIZE / 2;
+      let centerTop = canvas.clientHeight / 2 - CENTER_SIZE / 2;
+
+      for (let i = 0; i < PARTICLES_COUNT; i++) {
+        ps.push({
+          prevLocation: null,
+          location: {
+            x: centerLeft + Math.random() * CENTER_SIZE,
+            y: centerTop + Math.random() * CENTER_SIZE
+          },
+          color: [0xf, 0xf, 0xf],
+          velocity: { x: Math.random() * 10, y: Math.random() * 10 },
+          size: { width: ~~(Math.random() * 4), height: ~~(Math.random() * 4) },
+          angle: Math.random() * Math.PI * 2
+        });
+      }
+
+      requestAnimationFrame(render);
+
+      function render() {
+        context.fillStyle = '#000';
+        context.fillRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+        for (let particle of ps) {
+          let [r, g, b] = particle.color;
+
+          if (particle.location.x > 0 && particle.location.y > 0 && particle.location.x < canvas.clientWidth && particle.location.y < canvas.clientHeight && (r || g || b)) {
+            particle.location.x += particle.velocity.x * Math.cos(particle.angle);
+            particle.location.y += particle.velocity.y * Math.sin(particle.angle);
+
+            if (b > 0) {
+              b -= 2;
+            }
+
+            if (g > 0) {
+              g -= 1;
+            }
+
+            if (g < 0) {
+              g = 0;
+            }
+
+            if (b < 0) {
+              b = 0;
+            }
+
+            if (g === 0) {
+              if (r > 0) {
+                r -= 0.03;
+              }
+              else {
+                r = 0;
+              }
+            }
+
+            context.fillStyle = `#${(~~r).toString(16)}${g.toString(16)}${b.toString(16)}`;
+
+            particle.color = [r, g, b];
+
+            context.fillRect(particle.location.x, particle.location.y, particle.size.width, particle.size.height);
+
+            particle.prevLocation = particle.location;
+          }
+          else {
+            renderText = true;
+          }
+        }
+
+        if (renderText) {
+          context.font = '48pt verdana'
+          context.fillText('2020', centerLeft, centerTop);
+        }
+
+        requestAnimationFrame(render);
+      }
+    });
+  </script>
+</body>
+
+</html>
