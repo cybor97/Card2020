@@ -10,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const CENTER_Y = canvas.height / 2 - CENTER_SIZE / 2;
 
     let ps = new ParticleSystem(context)
-        .initParticles(10000)
+        .initParticles(canvas.width * canvas.height / 200)
         .initLocations(CENTER_X, CENTER_Y, CENTER_SIZE, CENTER_SIZE);
 
     canvas.addEventListener('click', ev => ps.enableAll()
@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let scene = new Scene(context, ps, ps2, ps3, ps4, ps5, text2020, textNotify);
     (this.render = () => requestAnimationFrame(() => {
+        scene.update();
         scene.render();
         this.render()
     }))();
@@ -55,9 +56,27 @@ class Scene extends BaseFigure {
     constructor(context, ...items) {
         super(context);
         this.items = new Set(items);
+        this.lastUpdate = null;
+        this.falseUpdates = 0;
     }
 
-    render(callback) {
+    update() {
+        let time = Date.now();
+        if (!this.lastUpdate || (time - this.lastUpdate > 30)) {
+            for (let item of this.items) {
+                if (item.enabled && item.update) {
+                    item.update();
+                }
+            }
+            this.falseUpdates = 0;
+            this.lastUpdate = time;
+            return;
+        }
+        this.falseUpdates++;
+        // console.log('FUPS', this.falseUpdates / (time - this.lastUpdate) * 1000)
+    }
+
+    render() {
         let context = this.context;
         context.fillStyle = '#000';
         context.fillRect(0, 0, context.canvas.width, context.canvas.height);
@@ -65,10 +84,6 @@ class Scene extends BaseFigure {
             if (item.enabled) {
                 item.render();
             }
-        }
-
-        if (typeof (callback) === 'function') {
-            callback();
         }
     }
 }
@@ -100,7 +115,7 @@ class Particle extends BaseFigure {
         this.reachBorder = false;
     }
 
-    render() {
+    update() {
         let [r, g, b] = this.color;
         let enabled = this.location.x > 0 && this.location.y > 0 && this.location.x < this.context.canvas.width && this.location.y < this.context.canvas.height && (r || g || b);
         this.enabled = enabled;
@@ -116,10 +131,14 @@ class Particle extends BaseFigure {
             g = g > 0 ? g - 1 : 0;
             b = b > 0 ? b - 1 : 0;
         }
+        this.color = [r, g, b];
+    }
+
+    render() {
+        let [r, g, b] = this.color;
 
         this.context.fillStyle = `#${(~~r).toString(16)}${g.toString(16)}${b.toString(16)}`;
 
-        this.color = [r, g, b];
         this.context.fillRect(this.location.x, this.location.y, this.size.width, this.size.height);
     }
 }
@@ -176,6 +195,14 @@ class ParticleSystem extends BaseFigure {
             particle.enabled = true;
         }
         return this;
+    }
+
+    update() {
+        for (let particle of this.particles) {
+            if (particle.enabled) {
+                particle.update();
+            }
+        }
     }
 
     render() {

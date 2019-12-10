@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             snowflakes.add(new Snowflake(context, rX, 0, rMode * 10, rVelocity, rDirection, rMode, rMode));
         }
-        if ((now - time) > 20) {
+        if ((now - time) > 50) {
             let dt = (now - time) / 1000;
             for (let snowflake of snowflakes) {
                 if (snowflake.y > canvas.height || snowflake.x > canvas.width || snowflake.x < 0) {
