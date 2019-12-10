@@ -4,8 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     canvas.setAttribute('height', canvas.clientHeight);
     let context = canvas.getContext('2d');
     let snowflakesCount = 50;
-    let snowflakes = new Set();;
+    let snowflakes = new Set();
+    let time = Date.now();
+
     let render = function () {
+        let now = Date.now();
         context.fillStyle = '#000';
         context.fillRect(0, 0, canvas.width, canvas.height)
         context.strokeStyle = '#FFF';
@@ -13,23 +16,29 @@ document.addEventListener('DOMContentLoaded', () => {
         while (snowflakes.size < snowflakesCount) {
             let rX = Math.random() * canvas.width;
             let rMode = ~~(Math.random() * 4) || 1;
-            let rVelocity = Math.random() * 30;
-            if (rVelocity < 5) {
-                rVelocity += 5;
+            let rVelocity = Math.random() * 300;
+            if (rVelocity < 80) {
+                rVelocity += 80;
             }
             let rDirection = ~~(Math.random() * 2) ? 1 : -1;
 
             snowflakes.add(new Snowflake(context, rX, 0, rMode * 10, rVelocity, rDirection, rMode, rMode));
         }
-
-        for (let snowflake of snowflakes) {
-            if (snowflake.y > canvas.height) {
-                snowflakes.delete(snowflake);
+        if ((now - time) > 20) {
+            let dt = (now - time) / 1000;
+            for (let snowflake of snowflakes) {
+                if (snowflake.y > canvas.height || snowflake.x > canvas.width || snowflake.x < 0) {
+                    snowflakes.delete(snowflake);
+                }
+                snowflake.y += snowflake.velocity * dt;
+                snowflake.x += snowflake.velocity * dt * snowflake.direction / 2;
+                time = now;
             }
-            snowflake.y += snowflake.velocity;
-            snowflake.x += snowflake.velocity * snowflake.direction / 2;
+        }
+        for (let snowflake of snowflakes) {
             snowflake.render();
         }
+
 
         requestAnimationFrame(render);
     }
