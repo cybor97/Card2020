@@ -31,14 +31,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    let padding = 100;
+    let padding = ~~(canvas.clientWidth / 20);
+    console.log('padding', padding)
+    let time = Date.now();
+    function render(i = 0, offset = 0) {
+        let xOffset = offset && offset !== 1 ? 1 : 0;
+        let yOffset = offset && offset !== 2 ? 1 : 0;
+        // console.log('offsets', xOffset, yOffset)
 
-    function render(i = 0) {
+        // time = Date.now();
         let cWidth = canvas.width;
         let cHeight = canvas.height;
 
-        for (let x = padding; x < cWidth - padding; x++) {
-            for (let y = padding; y < cHeight - padding; y++) {
+        for (let x = padding + xOffset; x < cWidth - padding; x += 2) {
+            for (let y = padding + yOffset; y < cHeight - padding; y += 2) {
                 let perlinX = x;
                 let perlinY = y;
                 let inSelectedRange = touched && Math.abs(mouseX - x) < 64 && Math.abs(mouseY - y) < 64;
@@ -46,7 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     perlinX /= 3;
                     perlinY /= 3;
                 }
-                let value = noise.perlin3(perlinX / 50, perlinY / 50, i);
+                let value = perlin3(perlinX / 50, perlinY / 50, i);
                 value = (1 + value) * 1.1 * 128;
 
                 let cell = (x + y * cWidth) * 4;
@@ -59,8 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             }
         }
+        // console.log('time1', Date.now() - time);
+        // time = Date.now();
 
         context.putImageData(image, 0, 0);
+        // console.log('time2', Date.now() - time);
+        // time = Date.now();
+
 
         let textValue = i < 3 ? 64 * (4 - i) - 1 : 100;
         textValue = textValue.toString(16);
@@ -70,7 +81,17 @@ document.addEventListener('DOMContentLoaded', () => {
         context.font = '32px verdana';
         context.fillText('Click and move at any place', cWidth / 2 - 156, cHeight / 2);
 
-        requestAnimationFrame(render.bind(this, i + 0.05));
+        if (offset < 3) {
+            offset++;
+        }
+        else {
+            offset = 0;
+        }
+        requestAnimationFrame(render.bind(this, i + 0.05, offset));
+
+        // console.log('time3', Date.now() - time);
+        // time = Date.now();
+
     }
 
     render();
