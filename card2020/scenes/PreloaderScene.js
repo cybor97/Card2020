@@ -1,0 +1,3 @@
+class PreloaderScene extends IScene {
+
+}

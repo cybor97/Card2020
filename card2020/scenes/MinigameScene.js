@@ -1,0 +1,3 @@
+class MinigameScene extends IScene {
+
+}

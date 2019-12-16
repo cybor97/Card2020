@@ -1,0 +1,3 @@
+class CardScene extends IScene {
+
+}
