@@ -11,21 +11,40 @@ document.addEventListener('DOMContentLoaded', () => {
     let bufferLength = null;
     let audioDataArray = new Uint8Array();
 
+    let playButton = document.getElementById('playButton');
+    let schwiftyButton = document.getElementById('schwiftyButton');
+    let padding = ~~(canvas.clientWidth / 20);
+    let schwiftyMode = false;
+
+    playButton.style.left = padding;
+    playButton.style.top = padding;
+
+    schwiftyButton.style.left = padding * 2 + playButton.clientWidth;
+    schwiftyButton.style.top = padding;
+
+    playButton.addEventListener('click', () => fileInput.click());
+    schwiftyButton.addEventListener('click', () => {
+        schwiftyButton.className = (schwiftyMode = !schwiftyMode) ? 'red' : '';
+
+    })
+
     fileInput.addEventListener('change', (ev) => {
         let files = ev.target.files;
         audio.src = URL.createObjectURL(files[0]);
         audio.load();
         audio.play();
 
-        let audioContext = new AudioContext();
-        let src = audioContext.createMediaElementSource(audio);
-        analyzer = audioContext.createAnalyser();
+        if (!analyzer) {
+            let audioContext = new AudioContext();
+            let src = audioContext.createMediaElementSource(audio);
+            analyzer = audioContext.createAnalyser();
 
-        src.connect(analyzer);
-        analyzer.connect(audioContext.destination);
-        analyzer.fftSize = 256;
-        bufferLength = analyzer.frequencyBinCount;
-        audioDataArray = new Uint8Array(bufferLength);
+            src.connect(analyzer);
+            analyzer.connect(audioContext.destination);
+            analyzer.fftSize = 256;
+            bufferLength = analyzer.frequencyBinCount;
+            audioDataArray = new Uint8Array(bufferLength);
+        }
 
     });
 
@@ -54,14 +73,12 @@ document.addEventListener('DOMContentLoaded', () => {
         touched = false;
     });
 
-
-    let padding = ~~(canvas.clientWidth / 20);
     console.log('padding', padding)
-    let time = Date.now();
+    let soundCoef = 0.05;
+
     function render(i = 0, offset = 0) {
         let xOffset = offset && offset !== 1 ? 1 : 0;
         let yOffset = offset && offset !== 2 ? 1 : 0;
-        // console.log('offsets', xOffset, yOffset)
 
         // time = Date.now();
         let cWidth = canvas.width;
@@ -73,18 +90,20 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let y = padding + yOffset; y < cHeight - padding; y += 2) {
                 let perlinX = x;
                 let perlinY = y;
+                if (schwiftyMode) {
+                    let schwiftyCoef = (soundCoef || 0.05) * 10;
+                    perlinX *= schwiftyCoef;
+                    perlinY *= schwiftyCoef;
+                }
+
                 let inSelectedRange = touched && Math.abs(mouseX - x) < 64 && Math.abs(mouseY - y) < 64;
                 if (inSelectedRange) {
                     perlinX /= 3;
                     perlinY /= 3;
                 }
 
-                let tCoef = 1;
-                if (analyzer) {
-                    tCoef *= audioDataArray[~~(bufferLength * Math.abs(Math.sin(i)))] / 2560;
-                }
 
-                let value = perlin3(perlinX / 50, perlinY / 50, i * tCoef);
+                let value = perlin3(perlinX / 50, perlinY / 50, i);
 
                 value = (1 + value) * 1.1 * 128;
 
@@ -98,13 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             }
         }
-        // console.log('time1', Date.now() - time);
-        // time = Date.now();
 
         context.putImageData(image, 0, 0);
-        // console.log('time2', Date.now() - time);
-        // time = Date.now();
-
 
         let textValue = i < 3 ? 64 * (4 - i) - 1 : 100;
         textValue = textValue.toString(16);
@@ -120,11 +134,14 @@ document.addEventListener('DOMContentLoaded', () => {
         else {
             offset = 0;
         }
+        if (analyzer) {
+            let soundCoefNew = Math.abs(Math.sin(audioDataArray[~~(bufferLength * Math.abs(Math.cos(i)))])) / 15;
+            if (soundCoefNew) {
+                soundCoef = soundCoefNew;
+            }
+            i += soundCoef;
+        }
         requestAnimationFrame(render.bind(this, i + 0.05, offset));
-
-        // console.log('time3', Date.now() - time);
-        // time = Date.now();
-
     }
 
     render();

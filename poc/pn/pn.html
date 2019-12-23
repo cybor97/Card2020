@@ -6,9 +6,39 @@
 </head>
 
 <body style="margin: 0px;" background="#000">
+    <style>
+        button {
+            outline: none;
+            border-radius: 0.6rem;
+            box-shadow: #00AA00 0.1rem 0.1rem 0.2rem;
+            border: none;
+            background-color: #00DD00;
+            color: white;
+            padding: 0.3rem;
+            position: fixed;
+            left: 0px;
+            top: 0px;
+            font: 16pt verdana;
+        }
+
+        button:hover {
+            box-shadow: #00AA00 0.1rem 0.1rem 0.5rem;
+        }
+
+        button.red {
+            background-color: #DD0000;
+            box-shadow: #AA0000 0.1rem 0.1rem 0.2rem;
+        }
+
+        button.red:hover {
+            box-shadow: #AA0000 0.1rem 0.1rem 0.5rem;
+        }
+    </style>
     <canvas id="canvas" style="width: 100vw; height: 100vh"></canvas>
-    <audio id="audio" controls></audio>
-    <input type="file" id="fileInput">
+    <button id="playButton">It's better with music ;)</button>
+    <button id="schwiftyButton">It's time to get schwifty!</button>
+    <audio id="audio" style="display: none;"></audio>
+    <input type="file" id="fileInput" style="display: none;">
 </body>
 
 </html>
