@@ -33,10 +33,34 @@
         button.red:hover {
             box-shadow: #AA0000 0.1rem 0.1rem 0.5rem;
         }
+
+        #player {
+            display: none;
+            align-items: center;
+            background: grey;
+            opacity: 0.8;
+            width: 150px;
+        }
+
+        #player>button {
+            position: relative;
+            height: 35px;
+        }
+
+        #player>#playProgress {
+            width: 0px;
+            height: 20px;
+            margin-left: 5px;
+        }
     </style>
     <canvas id="canvas" style="width: 100vw; height: 100vh"></canvas>
     <button id="playButton">It's better with music ;)</button>
     <button id="schwiftyButton">It's time to get schwifty!</button>
+
+    <div id="player" style="position: fixed; top: 0; left: 0">
+        <button id="playPauseButton">></button>
+        <div id="playProgress" style="width: 150px; background: #00AA00;"></div>
+    </div>
     <audio id="audio" style="display: none;"></audio>
     <input type="file" id="fileInput" style="display: none;">
 </body>

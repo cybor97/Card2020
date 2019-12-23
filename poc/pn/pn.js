@@ -16,17 +16,46 @@ document.addEventListener('DOMContentLoaded', () => {
     let padding = ~~(canvas.clientWidth / 20);
     let schwiftyMode = false;
 
+    let player = document.getElementById('player');
+    let playPauseButton = document.getElementById('playPauseButton');
+    let playProgress = document.getElementById('playProgress');
+
     playButton.style.left = padding;
     playButton.style.top = padding;
 
     schwiftyButton.style.left = padding * 2 + playButton.clientWidth;
     schwiftyButton.style.top = padding;
 
+    player.style.top = padding * 2;
+    player.style.left = padding;
+
     playButton.addEventListener('click', () => fileInput.click());
     schwiftyButton.addEventListener('click', () => {
         schwiftyButton.className = (schwiftyMode = !schwiftyMode) ? 'red' : '';
+    });
 
-    })
+    audio.addEventListener('play', () => {
+        player.style.display = 'flex';
+        playPauseButton.innerText = '>';
+    });
+    audio.addEventListener('pause', () => {
+        playPauseButton.innerText = '||';
+    });
+
+    player.addEventListener('click', (ev) => {
+        audio.currentTime = ~~(audio.duration * (ev.offsetX - playPauseButton.clientWidth - 5) / ev.target.clientWidth);
+        console.log(ev.offsetX, ev.target.clientWidth)
+    });
+
+    playPauseButton.addEventListener('click', (ev) => {
+        if (audio.paused) {
+            audio.play();
+        }
+        else {
+            audio.pause();
+        }
+        ev.stopPropagation();
+    });
 
     fileInput.addEventListener('change', (ev) => {
         let files = ev.target.files;
@@ -76,6 +105,12 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('padding', padding)
     let soundCoef = 0.05;
 
+    setInterval(() => {
+        if (analyzer) analyzer.getByteFrequencyData(audioDataArray);
+        playProgress.style.width = 150 * audio.currentTime / audio.duration;
+    }, 50);
+
+
     function render(i = 0, offset = 0) {
         let xOffset = offset && offset !== 1 ? 1 : 0;
         let yOffset = offset && offset !== 2 ? 1 : 0;
@@ -84,7 +119,6 @@ document.addEventListener('DOMContentLoaded', () => {
         let cWidth = canvas.width;
         let cHeight = canvas.height;
 
-        setInterval(() => { if (analyzer) analyzer.getByteFrequencyData(audioDataArray) }, 50);
 
         for (let x = padding + xOffset; x < cWidth - padding; x += 2) {
             for (let y = padding + yOffset; y < cHeight - padding; y += 2) {
