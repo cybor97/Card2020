@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    let padding = ~~(canvas.clientWidth / 5);
+    let padding = ~~(canvas.clientWidth / 20);
     console.log('padding', padding)
     let time = Date.now();
     function render(i = 0, offset = 0) {
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 let tCoef = 1;
                 if (analyzer) {
-                    tCoef *= audioDataArray[~~(bufferLength * Math.abs(Math.sin(i)))] + 0.5;
+                    tCoef *= audioDataArray[~~(bufferLength * Math.abs(Math.sin(i)))] / 2560;
                 }
 
                 let value = perlin3(perlinX / 50, perlinY / 50, i * tCoef);
