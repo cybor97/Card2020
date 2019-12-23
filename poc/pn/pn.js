@@ -5,6 +5,30 @@ document.addEventListener('DOMContentLoaded', () => {
     let context = canvas.getContext('2d');
     context.fillRect(0, 0, canvas.width, canvas.height)
 
+    let audio = document.getElementById('audio');
+    let fileInput = document.getElementById('fileInput');
+    let analyzer = null;
+    let bufferLength = null;
+    let audioDataArray = new Uint8Array();
+
+    fileInput.addEventListener('change', (ev) => {
+        let files = ev.target.files;
+        audio.src = URL.createObjectURL(files[0]);
+        audio.load();
+        audio.play();
+
+        let audioContext = new AudioContext();
+        let src = audioContext.createMediaElementSource(audio);
+        analyzer = audioContext.createAnalyser();
+
+        src.connect(analyzer);
+        analyzer.connect(audioContext.destination);
+        analyzer.fftSize = 256;
+        bufferLength = analyzer.frequencyBinCount;
+        audioDataArray = new Uint8Array(bufferLength);
+
+    });
+
     let image = context.createImageData(canvas.width, canvas.height);
     let data = image.data;
 
@@ -31,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
 
-    let padding = ~~(canvas.clientWidth / 20);
+    let padding = ~~(canvas.clientWidth / 5);
     console.log('padding', padding)
     let time = Date.now();
     function render(i = 0, offset = 0) {
@@ -43,6 +67,8 @@ document.addEventListener('DOMContentLoaded', () => {
         let cWidth = canvas.width;
         let cHeight = canvas.height;
 
+        setInterval(() => { if (analyzer) analyzer.getByteFrequencyData(audioDataArray) }, 50);
+
         for (let x = padding + xOffset; x < cWidth - padding; x += 2) {
             for (let y = padding + yOffset; y < cHeight - padding; y += 2) {
                 let perlinX = x;
@@ -52,7 +78,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     perlinX /= 3;
                     perlinY /= 3;
                 }
-                let value = perlin3(perlinX / 50, perlinY / 50, i);
+
+                let tCoef = 1;
+                if (analyzer) {
+                    tCoef *= audioDataArray[~~(bufferLength * Math.abs(Math.sin(i)))] + 0.5;
+                }
+
+                let value = perlin3(perlinX / 50, perlinY / 50, i * tCoef);
+
                 value = (1 + value) * 1.1 * 128;
 
                 let cell = (x + y * cWidth) * 4;
