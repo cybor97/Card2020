@@ -1,0 +1,3 @@
+class FinalScene extends IScene {
+
+}
